@@ -23,3 +23,9 @@ yarn-error.log*
 
 __snapshots__/
 /storybook-static
+
+# VIM
+*.swp
+*.swo
+
+.vscode
