@@ -1,1 +1,1 @@
-export const MNEMONIC = '';
+export const PRIVATE_KEY = '';
