@@ -14,7 +14,7 @@ const node = fromSeed(seed);
 const child = node.derivePath(`m/44'/${PATH}'/0'/0/0`);
 const account = getAccount(child, 'chihuahua');
 
-app.get('/', async (req: Request, res: Response, next: NextFunction) => {
+app.post('/aggregate', async (req: Request, res: Response, next: NextFunction) => {
   const rewardResponse = await getReward(account.address);
   const validatorAddress = rewardResponse.result.rewards[0].validator_address;
   const amount = new BN(rewardResponse.result.rewards[0].reward[0].amount.split('.')[0], 10);
@@ -27,10 +27,11 @@ app.get('/', async (req: Request, res: Response, next: NextFunction) => {
   res.send(result);
 });
 
-app.listen('3000', () => {
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
   console.log(`
     ################################################
-            Server listening on port: 3000
+            Server listening on port: ${port}
     ################################################
   `);
 });
