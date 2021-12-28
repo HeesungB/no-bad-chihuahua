@@ -2,11 +2,12 @@ import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';
 import schedule from 'node-schedule';
 import { createRawTx, getAccount, PATH, sendTx, signTx } from './services/cosmos';
-import { MNEMONIC } from './config';
+// import { MNEMONIC } from './config';
 import { getReward } from './services/api';
 import { BN } from 'bn.js';
 
-const seed = mnemonicToSeedSync(MNEMONIC);
+const mnemonic = process.argv[2];
+const seed = mnemonicToSeedSync(mnemonic);
 const node = fromSeed(seed);
 
 const child = node.derivePath(`m/44'/${PATH}'/0'/0/0`);
