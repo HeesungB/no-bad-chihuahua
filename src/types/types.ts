@@ -35,3 +35,11 @@ export interface HuauaRewardResponse {
     ];
   };
 }
+
+export interface ChainInformation {
+  name: string;
+  rpcUrl: string;
+  prefix: string;
+  demon: string;
+  feeAmount: string;
+}
