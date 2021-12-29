@@ -8,7 +8,7 @@ export const mnemonicValidation = async (input: string) => {
 };
 
 export const privateKeyValidation = async (input: string) => {
-  if (input.match) {
+  if (!input.match(/^(?:0x)?(\d|[a-z]){64}$/)) {
     return 'Invalid private key';
   }
   return true;

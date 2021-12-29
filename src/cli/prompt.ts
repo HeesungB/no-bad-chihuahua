@@ -22,15 +22,9 @@ export default async (): Promise<PromptAnswers> => {
   let authString: string;
   if (authType === 'mnemonic') {
     const { mnemonic } = (await inquirer.prompt(mnemonicQuestion)) as { mnemonic: string };
-    if (!mnemonic) {
-      // mnemonic valiation needed
-    }
     authString = mnemonic;
   } else {
     const { privateKey } = (await inquirer.prompt(privateKeyQuestion)) as { privateKey: string };
-    if (!privateKey) {
-      // mnemonic valiation needed
-    }
     authString = privateKey;
   }
   const { continueFlag } = (await inquirer.prompt(continueConfirmQuestion)) as { continueFlag: boolean };

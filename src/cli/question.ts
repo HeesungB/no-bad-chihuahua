@@ -1,4 +1,4 @@
-import { ConfirmQuestion, InputQuestion, ListQuestion, Question } from 'inquirer';
+import { ConfirmQuestion, InputQuestion, Inquirer, ListQuestion, Question } from 'inquirer';
 import { mnemonicValidation, privateKeyValidation } from './validation';
 
 export type TokenType = 'HUAHUA';

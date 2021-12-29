@@ -4,7 +4,7 @@ import schedule from 'node-schedule';
 import { createRawTx, getAccount, PATH, sendTx, signTx } from './services/cosmos';
 import { getReward } from './services/api';
 import { BN } from 'bn.js';
-import prompt from './prompt';
+import prompt from './cli/prompt';
 import { Account } from './types/types';
 
 const autoStaking = async (account: Account, child: BIP32Interface) => {
@@ -32,6 +32,7 @@ const run = async () => {
       child = node.derivePath(`m/44'/${PATH}'/0'/0/0`);
       account = getAccount(child, 'chihuahua');
     } else {
+      // convert private key if it starts with 0x prefix
       console.log('Private key is not supported yet');
     }
 
