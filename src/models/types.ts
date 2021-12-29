@@ -29,17 +29,29 @@ export interface HuauaRewardResponse {
           {
             denom: string;
             amount: string;
-          }
+          },
         ];
-      }
+      },
     ];
   };
 }
 
 export interface ChainInformation {
   name: string;
+  ticker: ChainType;
   rpcUrl: string;
   prefix: string;
   demon: string;
   feeAmount: string;
+}
+
+export type ChainType = 'HUAHUA' | 'OSMOSIS';
+
+export type AuthType = 'mnemonic' | 'privateKey';
+
+export interface PromptAnswers {
+  chainType: ChainType;
+  authType: AuthType;
+  authString: string;
+  continueFlag: boolean;
 }

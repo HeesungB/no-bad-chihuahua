@@ -1,9 +1,9 @@
 import { encodeSecp256k1Pubkey } from '@cosmjs/amino';
 import { AccountData, DirectSecp256k1Wallet, encodePubkey, makeAuthInfoBytes, makeSignDoc } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
-import { Account, ChainInformation, RawTx, SignedTx } from '../types/types';
+import { Account, ChainInformation, RawTx, SignedTx } from '../models/types';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
-import { registry } from '../types/defaultRegistryTypes';
+import { registry } from '../models/defaultRegistryTypes';
 import { GAS_PRICE } from '../config';
 
 export const convertHexStringToBuffer = (hexString: string) => Buffer.from(hexString, 'hex');
@@ -27,7 +27,7 @@ export const createClaimAndDelegateRawTx = async (
   delegatorAddress: string,
   validatorAddress: string,
   amount: string,
-  chainInformation: ChainInformation
+  chainInformation: ChainInformation,
 ): Promise<RawTx> => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
@@ -78,7 +78,7 @@ export const createClaimRawTx = async (
   client: StargateClient,
   delegatorAddress: string,
   validatorAddress: string,
-  chainInformation: ChainInformation
+  chainInformation: ChainInformation,
 ): Promise<RawTx> => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
@@ -119,7 +119,7 @@ export const createDelegateRawTx = async (
   delegatorAddress: string,
   validatorAddress: string,
   amount: string,
-  chainInformation: ChainInformation
+  chainInformation: ChainInformation,
 ): Promise<RawTx> => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
@@ -184,10 +184,10 @@ export const signTx = async (privateKeyBuffer: Buffer, rawTx: RawTx, chainInform
         },
       ],
       rawTx.fee.amount,
-      rawTx.fee.gas
+      rawTx.fee.gas,
     ),
     rawTx.signerData.chainId,
-    rawTx.signerData.accountNumber
+    rawTx.signerData.accountNumber,
   );
 
   const { signature } = await wallet.signDirect(accounts[0].address, signDoc);

@@ -1,33 +1,17 @@
 import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';
-import schedule from 'node-schedule';
-import { convertHexStringToBuffer, createClaimAndDelegateRawTx, getAccount, getClient, sendTx, signTx } from './services/cosmos';
-import { COIN_TYPE, GAS_PRICE, MNEMONIC, PRIVATE_KEY, SELECTED_CHAIN, SUPPORT_CHAIN_LIST } from './config';
-import { getReward } from './services/api';
 import { BN } from 'bn.js';
-import { ChainInformation } from './types/types';
+import schedule from 'node-schedule';
 
-let privateKey: Buffer;
+import { convertHexStringToBuffer, createClaimAndDelegateRawTx, getAccount, getClient, sendTx, signTx } from './services/cosmos';
+import { COIN_TYPE, GAS_PRICE, SUPPORT_CHAIN_LIST } from './config';
+import { getReward } from './services/api';
+import { ChainInformation } from './models/types';
+import prompt from './cli/prompt';
 
-if (MNEMONIC !== '') {
-  const seed = mnemonicToSeedSync(MNEMONIC);
-  const node = fromSeed(seed);
-
-  const child = node.derivePath(`m/44'/${COIN_TYPE}'/0'/0/0`);
-  if (child.privateKey !== undefined) {
-    privateKey = child.privateKey;
-  }
-}
-
-if (PRIVATE_KEY !== '') {
-  privateKey = convertHexStringToBuffer(PRIVATE_KEY);
-}
-
-const selectedChainInformation: ChainInformation = SUPPORT_CHAIN_LIST.filter((chain) => chain.name === SELECTED_CHAIN)[0];
-
-const job = schedule.scheduleJob('*/1 * * * *', async () => {
-  const client = await getClient(selectedChainInformation.rpcUrl);
-  const account = await getAccount(privateKey, selectedChainInformation);
+const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformation) => {
+  const client = await getClient(chainInformation.rpcUrl);
+  const account = await getAccount(privateKey, chainInformation);
   const rewardResponse = await getReward(account.address);
 
   const validatorAddress = rewardResponse.result.rewards[0].validator_address;
@@ -39,8 +23,40 @@ const job = schedule.scheduleJob('*/1 * * * *', async () => {
     account.address,
     validatorAddress,
     amount.sub(gasPrice).toString(),
-    selectedChainInformation
+    chainInformation,
   );
-  const signedTx = await signTx(privateKey, rawTx, selectedChainInformation);
+  const signedTx = await signTx(privateKey, rawTx, chainInformation);
   const result = await sendTx(client, signedTx);
-});
+};
+
+const run = async () => {
+  const { chainType, authType, authString, continueFlag } = await prompt();
+  const selectedChainInformation: ChainInformation | undefined = SUPPORT_CHAIN_LIST.find((chain) => chain.ticker === chainType);
+
+  if (selectedChainInformation === undefined) {
+    return;
+  }
+
+  // validation check, should remove authType after privateKey supported
+  if (continueFlag) {
+    let privateKey: Buffer;
+
+    if (authType === 'mnemonic') {
+      const seed = mnemonicToSeedSync(authString);
+      const node = fromSeed(seed);
+
+      const child = node.derivePath(`m/44'/${COIN_TYPE}'/0'/0/0`);
+      if (child.privateKey !== undefined) {
+        privateKey = child.privateKey;
+      }
+    } else {
+      privateKey = convertHexStringToBuffer(authString.startsWith('0x') ? authString.slice(2) : authString);
+    }
+
+    schedule.scheduleJob('*/1 * * * *', async () => {
+      await autoStaking(privateKey, selectedChainInformation);
+    });
+  }
+};
+
+run();
