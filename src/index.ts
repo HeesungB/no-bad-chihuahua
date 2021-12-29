@@ -35,7 +35,7 @@ const run = async () => {
       console.log('Private key is not supported yet');
     }
 
-    schedule.scheduleJob('*/1 * * * * *', async () => {
+    schedule.scheduleJob('*/1 * * * *', async () => {
       await autoStaking(account, child);
     });
   }
