@@ -36,5 +36,5 @@ export const privateKeyQuestion: InputQuestion = {
 export const continueConfirmQuestion: ConfirmQuestion = {
   type: 'confirm',
   name: 'continueFlag',
-  message: 'Would you like to go on?',
+  message: 'It will start from next schedule. Would you like to go on?',
 };

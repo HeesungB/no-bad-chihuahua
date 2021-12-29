@@ -9,22 +9,35 @@ import {
   tokenTypeQuestion,
 } from './question';
 
-export default async () => {
-  const answers = {};
+export interface PromptAnswers {
+  tokenType: TokenType;
+  authType: AuthType;
+  authString: string;
+  continueFlag: boolean;
+}
+
+export default async (): Promise<PromptAnswers> => {
   const { tokenType } = (await inquirer.prompt(tokenTypeQuestion)) as { tokenType: TokenType };
   const { authType } = (await inquirer.prompt(authTypeQuestion)) as { authType: AuthType };
+  let authString: string;
   if (authType === 'mnemonic') {
     const { mnemonic } = (await inquirer.prompt(mnemonicQuestion)) as { mnemonic: string };
-    console.log(mnemonic);
     if (!mnemonic) {
       // mnemonic valiation needed
     }
+    authString = mnemonic;
   } else {
     const { privateKey } = (await inquirer.prompt(privateKeyQuestion)) as { privateKey: string };
     if (!privateKey) {
       // mnemonic valiation needed
     }
+    authString = privateKey;
   }
-  const { continueFlag } = (await inquirer.prompt(continueConfirmQuestion)) as { continueFlag: string };
-  console.log(continueFlag);
+  const { continueFlag } = (await inquirer.prompt(continueConfirmQuestion)) as { continueFlag: boolean };
+  return {
+    tokenType,
+    authType,
+    authString,
+    continueFlag,
+  };
 };
