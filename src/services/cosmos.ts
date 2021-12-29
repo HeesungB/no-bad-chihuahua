@@ -1,12 +1,10 @@
-import { encodeSecp256k1Pubkey, pubkeyToAddress } from '@cosmjs/amino';
+import { encodeSecp256k1Pubkey } from '@cosmjs/amino';
 import { AccountData, DirectSecp256k1Wallet, encodePubkey, makeAuthInfoBytes, makeSignDoc } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
-import { Account, RawTx, SignedTx } from '../types/types';
+import { Account, ChainInformation, RawTx, SignedTx } from '../types/types';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { registry } from '../types/defaultRegistryTypes';
 import { GAS_PRICE } from '../config';
-
-declare type CHAIN = 'osmo' | 'chihuahua';
 
 export const convertHexStringToBuffer = (hexString: string) => Buffer.from(hexString, 'hex');
 
@@ -16,8 +14,8 @@ export const getClient = async (rpcUrl: string): Promise<StargateClient> => {
   return client;
 };
 
-export const getAccount = async (privateKey: Buffer, prefix: CHAIN): Promise<Account> => {
-  const wallet = await DirectSecp256k1Wallet.fromKey(new Uint8Array(privateKey), prefix);
+export const getAccount = async (privateKey: Buffer, chainInformation: ChainInformation): Promise<Account> => {
+  const wallet = await DirectSecp256k1Wallet.fromKey(new Uint8Array(privateKey), chainInformation.prefix);
   const accounts = await wallet.getAccounts();
   const accountData: AccountData = accounts[0];
 
@@ -28,7 +26,8 @@ export const createClaimAndDelegateRawTx = async (
   client: StargateClient,
   delegatorAddress: string,
   validatorAddress: string,
-  amount: string
+  amount: string,
+  chainInformation: ChainInformation
 ): Promise<RawTx> => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
@@ -42,8 +41,8 @@ export const createClaimAndDelegateRawTx = async (
     fee: {
       amount: [
         {
-          denom: 'uhuahua',
-          amount: '7000',
+          denom: chainInformation.demon,
+          amount: chainInformation.feeAmount,
         },
       ],
       gas: GAS_PRICE,
@@ -64,7 +63,7 @@ export const createClaimAndDelegateRawTx = async (
           validatorAddress,
           amount: {
             amount,
-            denom: 'uhuahua',
+            denom: chainInformation.demon,
           },
         },
       },
@@ -79,7 +78,7 @@ export const createClaimRawTx = async (
   client: StargateClient,
   delegatorAddress: string,
   validatorAddress: string,
-  amount: string
+  chainInformation: ChainInformation
 ): Promise<RawTx> => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
@@ -93,8 +92,8 @@ export const createClaimRawTx = async (
     fee: {
       amount: [
         {
-          denom: 'uhuahua',
-          amount: '7000',
+          denom: chainInformation.demon,
+          amount: chainInformation.feeAmount,
         },
       ],
       gas: GAS_PRICE,
@@ -119,7 +118,8 @@ export const createDelegateRawTx = async (
   client: StargateClient,
   delegatorAddress: string,
   validatorAddress: string,
-  amount: string
+  amount: string,
+  chainInformation: ChainInformation
 ): Promise<RawTx> => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
@@ -133,8 +133,8 @@ export const createDelegateRawTx = async (
     fee: {
       amount: [
         {
-          denom: 'uhuahua',
-          amount: '7000',
+          denom: chainInformation.demon,
+          amount: chainInformation.feeAmount,
         },
       ],
       gas: GAS_PRICE,
@@ -148,7 +148,7 @@ export const createDelegateRawTx = async (
           validatorAddress,
           amount: {
             amount,
-            denom: 'uhuahua',
+            denom: chainInformation.demon,
           },
         },
       },
@@ -159,8 +159,8 @@ export const createDelegateRawTx = async (
   return rawTx;
 };
 
-export const signTx = async (privateKeyBuffer: Buffer, prefix: CHAIN, rawTx: RawTx): Promise<SignedTx> => {
-  const wallet = await DirectSecp256k1Wallet.fromKey(new Uint8Array(privateKeyBuffer), prefix);
+export const signTx = async (privateKeyBuffer: Buffer, rawTx: RawTx, chainInformation: ChainInformation): Promise<SignedTx> => {
+  const wallet = await DirectSecp256k1Wallet.fromKey(new Uint8Array(privateKeyBuffer), chainInformation.prefix);
   const accounts = await wallet.getAccounts();
 
   const txBodyEncodeObject = {
