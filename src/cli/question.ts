@@ -1,10 +1,10 @@
-import { ConfirmQuestion, InputQuestion, Inquirer, ListQuestion, Question } from 'inquirer';
+import { ConfirmQuestion, InputQuestion, ListQuestion } from 'inquirer';
 import { mnemonicValidation, privateKeyValidation } from './validation';
 
-export type TokenType = 'HUAHUA';
+export type TokenType = 'HUAHUA' | 'OSMOSIS';
 export type AuthType = 'mnemonic' | 'privateKey';
 
-const tokenTypeList: TokenType[] = ['HUAHUA'];
+const tokenTypeList: TokenType[] = ['HUAHUA', 'OSMOSIS'];
 
 const authTypeList: AuthType[] = ['mnemonic', 'privateKey'];
 

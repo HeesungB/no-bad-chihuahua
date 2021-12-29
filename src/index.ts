@@ -1,43 +1,60 @@
 import { mnemonicToSeedSync } from 'bip39';
-import { BIP32Interface, fromSeed } from 'bip32';
-import schedule from 'node-schedule';
-import { createRawTx, getAccount, PATH, sendTx, signTx } from './services/cosmos';
-import { getReward } from './services/api';
+import { fromSeed } from 'bip32';
 import { BN } from 'bn.js';
-import prompt from './cli/prompt';
-import { Account } from './types/types';
+import schedule from 'node-schedule';
 
-const autoStaking = async (account: Account, child: BIP32Interface) => {
+import { convertHexStringToBuffer, createClaimAndDelegateRawTx, getAccount, getClient, sendTx, signTx } from './services/cosmos';
+import { COIN_TYPE, GAS_PRICE, SUPPORT_CHAIN_LIST } from './config';
+import { getReward } from './services/api';
+import { ChainInformation } from './models/types';
+import prompt from './cli/prompt';
+
+const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformation) => {
+  const client = await getClient(chainInformation.rpcUrl);
+  const account = await getAccount(privateKey, chainInformation);
   const rewardResponse = await getReward(account.address);
+
   const validatorAddress = rewardResponse.result.rewards[0].validator_address;
   const amount = new BN(rewardResponse.result.rewards[0].reward[0].amount.split('.')[0], 10);
-  const gasPrice = new BN(200000, 10);
+  const gasPrice = new BN(GAS_PRICE, 10);
 
-  const rawTx = await createRawTx(account.address, validatorAddress, amount.sub(gasPrice).toString());
-  const signedTx = await signTx(child, 'chihuahua', rawTx);
-  const result = await sendTx(signedTx);
+  const rawTx = await createClaimAndDelegateRawTx(
+    client,
+    account.address,
+    validatorAddress,
+    amount.sub(gasPrice).toString(),
+    chainInformation,
+  );
+  const signedTx = await signTx(privateKey, rawTx, chainInformation);
+  const result = await sendTx(client, signedTx);
 };
 
 const run = async () => {
   const { tokenType, authType, authString, continueFlag } = await prompt();
+  const selectedChainInformation: ChainInformation | undefined = SUPPORT_CHAIN_LIST.find((chain) => chain.ticker === tokenType);
+
+  if (selectedChainInformation === undefined) {
+    return;
+  }
 
   // validation check, should remove authType after privateKey supported
-  if (continueFlag && authType === 'mnemonic') {
-    let child: BIP32Interface;
-    let account: Account;
+  if (continueFlag) {
+    let privateKey: Buffer;
+
     if (authType === 'mnemonic') {
       const seed = mnemonicToSeedSync(authString);
       const node = fromSeed(seed);
 
-      child = node.derivePath(`m/44'/${PATH}'/0'/0/0`);
-      account = getAccount(child, 'chihuahua');
+      const child = node.derivePath(`m/44'/${COIN_TYPE}'/0'/0/0`);
+      if (child.privateKey !== undefined) {
+        privateKey = child.privateKey;
+      }
     } else {
-      // convert private key if it starts with 0x prefix
-      console.log('Private key is not supported yet');
+      privateKey = convertHexStringToBuffer(authString);
     }
 
     schedule.scheduleJob('*/1 * * * *', async () => {
-      await autoStaking(account, child);
+      await autoStaking(privateKey, selectedChainInformation);
     });
   }
 };

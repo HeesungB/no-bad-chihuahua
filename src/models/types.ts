@@ -1,3 +1,5 @@
+import { TokenType } from '../cli/question';
+
 export interface BIP44 {
   type: number;
   account: number;
@@ -29,9 +31,18 @@ export interface HuauaRewardResponse {
           {
             denom: string;
             amount: string;
-          }
+          },
         ];
-      }
+      },
     ];
   };
+}
+
+export interface ChainInformation {
+  name: string;
+  ticker: TokenType;
+  rpcUrl: string;
+  prefix: string;
+  demon: string;
+  feeAmount: string;
 }
