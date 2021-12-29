@@ -9,7 +9,7 @@ import { BN } from 'bn.js';
 const job = schedule.scheduleJob('*/1 * * * *', async () => {
   const account = await getAccount(PRIVATE_KEY, 'chihuahua');
 
-  var privateKeyBuffer = Buffer.from(PRIVATE_KEY, 'utf8');
+  var privateKeyBuffer = Buffer.from(PRIVATE_KEY, 'hex');
 
   const rewardResponse = await getReward(account.address);
   const validatorAddress = rewardResponse.result.rewards[0].validator_address;

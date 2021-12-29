@@ -10,7 +10,7 @@ export const PATH = 118;
 declare type CHAIN = 'osmo' | 'chihuahua';
 
 export const getAccount = async (privateKey: string, prefix: CHAIN): Promise<Account> => {
-  var privateKeyBuffer = Buffer.from(privateKey, 'utf8');
+  var privateKeyBuffer = Buffer.from(privateKey, 'hex');
   const wallet = await DirectSecp256k1Wallet.fromKey(new Uint8Array(privateKeyBuffer), prefix);
   const accounts = await wallet.getAccounts();
   const accountData: AccountData = accounts[0];
