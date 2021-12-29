@@ -1,18 +1,16 @@
 import { ConfirmQuestion, InputQuestion, ListQuestion } from 'inquirer';
+import { AuthType, ChainType } from '../models/types';
 import { mnemonicValidation, privateKeyValidation } from './validation';
 
-export type TokenType = 'HUAHUA' | 'OSMOSIS';
-export type AuthType = 'mnemonic' | 'privateKey';
-
-const tokenTypeList: TokenType[] = ['HUAHUA', 'OSMOSIS'];
+const chainTypeList: ChainType[] = ['HUAHUA'];
 
 const authTypeList: AuthType[] = ['mnemonic', 'privateKey'];
 
-export const tokenTypeQuestion: ListQuestion = {
+export const chainTypeQuestion: ListQuestion = {
   type: 'list',
-  name: 'tokenType',
+  name: 'chainType',
   message: 'What would you like to steak🥩?',
-  choices: tokenTypeList,
+  choices: chainTypeList,
 };
 
 export const authTypeQuestion: ListQuestion = {

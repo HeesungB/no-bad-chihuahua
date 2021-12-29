@@ -1,23 +1,9 @@
 import inquirer from 'inquirer';
-import {
-  AuthType,
-  authTypeQuestion,
-  continueConfirmQuestion,
-  mnemonicQuestion,
-  privateKeyQuestion,
-  TokenType,
-  tokenTypeQuestion,
-} from './question';
-
-export interface PromptAnswers {
-  tokenType: TokenType;
-  authType: AuthType;
-  authString: string;
-  continueFlag: boolean;
-}
+import { AuthType, ChainType, PromptAnswers } from '../models/types';
+import { authTypeQuestion, continueConfirmQuestion, mnemonicQuestion, privateKeyQuestion, chainTypeQuestion } from './question';
 
 export default async (): Promise<PromptAnswers> => {
-  const { tokenType } = (await inquirer.prompt(tokenTypeQuestion)) as { tokenType: TokenType };
+  const { chainType } = (await inquirer.prompt(chainTypeQuestion)) as { chainType: ChainType };
   const { authType } = (await inquirer.prompt(authTypeQuestion)) as { authType: AuthType };
   let authString: string;
   if (authType === 'mnemonic') {
@@ -29,7 +15,7 @@ export default async (): Promise<PromptAnswers> => {
   }
   const { continueFlag } = (await inquirer.prompt(continueConfirmQuestion)) as { continueFlag: boolean };
   return {
-    tokenType,
+    chainType,
     authType,
     authString,
     continueFlag,

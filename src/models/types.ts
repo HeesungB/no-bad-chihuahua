@@ -1,5 +1,3 @@
-import { TokenType } from '../cli/question';
-
 export interface BIP44 {
   type: number;
   account: number;
@@ -40,9 +38,20 @@ export interface HuauaRewardResponse {
 
 export interface ChainInformation {
   name: string;
-  ticker: TokenType;
+  ticker: ChainType;
   rpcUrl: string;
   prefix: string;
   demon: string;
   feeAmount: string;
+}
+
+export type ChainType = 'HUAHUA' | 'OSMOSIS';
+
+export type AuthType = 'mnemonic' | 'privateKey';
+
+export interface PromptAnswers {
+  chainType: ChainType;
+  authType: AuthType;
+  authString: string;
+  continueFlag: boolean;
 }

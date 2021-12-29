@@ -30,8 +30,8 @@ const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformatio
 };
 
 const run = async () => {
-  const { tokenType, authType, authString, continueFlag } = await prompt();
-  const selectedChainInformation: ChainInformation | undefined = SUPPORT_CHAIN_LIST.find((chain) => chain.ticker === tokenType);
+  const { chainType, authType, authString, continueFlag } = await prompt();
+  const selectedChainInformation: ChainInformation | undefined = SUPPORT_CHAIN_LIST.find((chain) => chain.ticker === chainType);
 
   if (selectedChainInformation === undefined) {
     return;
@@ -50,7 +50,7 @@ const run = async () => {
         privateKey = child.privateKey;
       }
     } else {
-      privateKey = convertHexStringToBuffer(authString);
+      privateKey = convertHexStringToBuffer(authString.startsWith('0x') ? authString.slice(2) : authString);
     }
 
     schedule.scheduleJob('*/1 * * * *', async () => {
