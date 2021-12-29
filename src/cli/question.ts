@@ -1,4 +1,4 @@
-import { ConfirmQuestion, InputQuestion, ListQuestion } from 'inquirer';
+import { ConfirmQuestion, ListQuestion, PasswordQuestion } from 'inquirer';
 import { AuthType, ChainType } from '../models/types';
 import { mnemonicValidation, privateKeyValidation } from './validation';
 
@@ -20,15 +20,15 @@ export const authTypeQuestion: ListQuestion = {
   choices: authTypeList,
 };
 
-export const mnemonicQuestion: InputQuestion = {
-  type: 'input',
+export const mnemonicQuestion: PasswordQuestion = {
+  type: 'password',
   name: 'mnemonic',
   message: 'What is your mnemonic words?',
   validate: mnemonicValidation,
 };
 
-export const privateKeyQuestion: InputQuestion = {
-  type: 'input',
+export const privateKeyQuestion: PasswordQuestion = {
+  type: 'password',
   name: 'privateKey',
   message: 'What is your privateKey?',
   validate: privateKeyValidation,
