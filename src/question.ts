@@ -1,4 +1,5 @@
 import { ConfirmQuestion, InputQuestion, ListQuestion, Question } from 'inquirer';
+import { mnemonicValidation, privateKeyValidation } from './validation';
 
 export type TokenType = 'HUAHUA';
 export type AuthType = 'mnemonic' | 'privateKey';
@@ -25,12 +26,14 @@ export const mnemonicQuestion: InputQuestion = {
   type: 'input',
   name: 'mnemonic',
   message: 'What is your mnemonic words?',
+  validate: mnemonicValidation,
 };
 
 export const privateKeyQuestion: InputQuestion = {
   type: 'input',
   name: 'privateKey',
   message: 'What is your privateKey?',
+  validate: privateKeyValidation,
 };
 
 export const continueConfirmQuestion: ConfirmQuestion = {
