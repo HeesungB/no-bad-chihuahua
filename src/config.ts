@@ -20,8 +20,8 @@ export const SUPPORT_CHAIN_LIST: ChainInformation[] = [
     apiUrl: 'https://lcd-osmosis.keplr.app',
     prefix: 'osmo',
     demon: 'uosmo',
-    feeAmount: 7000,
-    gasPrice: 200000,
+    feeAmount: 0,
+    gasPrice: 250000,
   },
   {
     name: 'comdex',
@@ -30,7 +30,7 @@ export const SUPPORT_CHAIN_LIST: ChainInformation[] = [
     apiUrl: 'https://rest.comdex.one',
     prefix: 'comdex',
     demon: 'ucmdx',
-    feeAmount: 7000,
+    feeAmount: 6000,
     gasPrice: 200000,
   },
 ];
