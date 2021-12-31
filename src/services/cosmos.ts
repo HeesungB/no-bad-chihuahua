@@ -1,10 +1,10 @@
 import { encodeSecp256k1Pubkey } from '@cosmjs/amino';
 import { AccountData, DirectSecp256k1Wallet, encodePubkey, makeAuthInfoBytes, makeSignDoc } from '@cosmjs/proto-signing';
 import { StargateClient } from '@cosmjs/stargate';
-import { Account, ChainInformation, RawTx, SignedTx } from '../models/types';
+import { Account, ChainInformation, RawTx, Reward, SignedTx } from '../models/types';
 import { TxRaw } from 'cosmjs-types/cosmos/tx/v1beta1/tx';
 import { registry } from '../models/defaultRegistryTypes';
-import { GAS_PRICE } from '../config';
+import BN from 'bn.js';
 
 export const convertHexStringToBuffer = (hexString: string) => Buffer.from(hexString, 'hex');
 
@@ -22,105 +22,60 @@ export const getAccount = async (privateKey: Buffer, chainInformation: ChainInfo
   return { address: accountData.address, publicKey: accountData.pubkey.toString() };
 };
 
-export const createClaimAndDelegateRawTx = async (
-  client: StargateClient,
-  delegatorAddress: string,
-  validatorAddress: string,
-  amount: string,
-  chainInformation: ChainInformation,
-): Promise<RawTx> => {
-  const sequence = await client.getSequence(delegatorAddress);
-  const chainId = await client.getChainId();
+export const getTopValidatorAddress = (rewards: Reward[]): string => {
+  const topValidator = { address: '', amount: '0' };
 
-  const rawTx: RawTx = {
-    signerData: {
-      accountNumber: `${sequence.accountNumber}`,
-      sequence: sequence.sequence,
-      chainId,
-    },
-    fee: {
-      amount: [
-        {
-          denom: chainInformation.demon,
-          amount: chainInformation.feeAmount,
-        },
-      ],
-      gas: GAS_PRICE,
-    },
-    memo: '',
-    msgs: [
-      {
-        typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-        value: {
-          delegatorAddress,
-          validatorAddress,
-        },
-      },
-      {
-        typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
-        value: {
-          delegatorAddress,
-          validatorAddress,
-          amount: {
-            amount,
-            denom: chainInformation.demon,
-          },
-        },
-      },
-    ],
-    sequence: `${sequence.sequence}`,
-  };
+  for (const reward of rewards) {
+    const rewardAmount = reward.reward[0].amount.split('.')[0];
 
-  return rawTx;
+    const topValidatorAmount = new BN(topValidator.amount, 10);
+    const rewardAmountBN = new BN(rewardAmount, 10);
+
+    if (rewardAmountBN.gt(topValidatorAmount)) {
+      topValidator.address = reward.validator_address;
+      topValidator.amount = rewardAmount;
+    }
+  }
+
+  return topValidator.address;
 };
 
-export const createClaimRawTx = async (
-  client: StargateClient,
-  delegatorAddress: string,
-  validatorAddress: string,
+export const createTxMessage = (
   chainInformation: ChainInformation,
-): Promise<RawTx> => {
-  const sequence = await client.getSequence(delegatorAddress);
-  const chainId = await client.getChainId();
+  rewards: Reward[],
+  delegatorAddress: string,
+  topValidatorAddress: string
+) => {
+  let totalAmount = new BN(0);
+  const messages = [];
+  for (const reward of rewards) {
+    totalAmount = totalAmount.add(new BN(reward.reward[0].amount.split('.')[0], 10));
 
-  const rawTx: RawTx = {
-    signerData: {
-      accountNumber: `${sequence.accountNumber}`,
-      sequence: sequence.sequence,
-      chainId,
-    },
-    fee: {
-      amount: [
-        {
-          denom: chainInformation.demon,
-          amount: chainInformation.feeAmount,
-        },
-      ],
-      gas: GAS_PRICE,
-    },
-    memo: '',
-    msgs: [
-      {
-        typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
-        value: {
-          delegatorAddress,
-          validatorAddress,
-        },
+    messages.push({
+      typeUrl: '/cosmos.distribution.v1beta1.MsgWithdrawDelegatorReward',
+      value: {
+        delegatorAddress,
+        validatorAddress: reward.validator_address,
       },
-    ],
-    sequence: `${sequence.sequence}`,
-  };
+    });
+  }
 
-  return rawTx;
+  messages.push({
+    typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
+    value: {
+      delegatorAddress,
+      validatorAddress: topValidatorAddress,
+      amount: {
+        amount: totalAmount.toString(),
+        denom: chainInformation.demon,
+      },
+    },
+  });
+
+  return messages;
 };
 
-export const createDelegateRawTx = async (
-  client: StargateClient,
-  delegatorAddress: string,
-  validatorAddress: string,
-  amount: string,
-  chainInformation: ChainInformation,
-): Promise<RawTx> => {
+export const createTx = async (client: StargateClient, chainInformation: ChainInformation, delegatorAddress: string, messages: any[]) => {
   const sequence = await client.getSequence(delegatorAddress);
   const chainId = await client.getChainId();
 
@@ -134,25 +89,13 @@ export const createDelegateRawTx = async (
       amount: [
         {
           denom: chainInformation.demon,
-          amount: chainInformation.feeAmount,
+          amount: `${chainInformation.feeAmount * messages.length}`,
         },
       ],
-      gas: GAS_PRICE,
+      gas: `${chainInformation.gasPrice * messages.length}`,
     },
     memo: '',
-    msgs: [
-      {
-        typeUrl: '/cosmos.staking.v1beta1.MsgDelegate',
-        value: {
-          delegatorAddress,
-          validatorAddress,
-          amount: {
-            amount,
-            denom: chainInformation.demon,
-          },
-        },
-      },
-    ],
+    msgs: messages,
     sequence: `${sequence.sequence}`,
   };
 
@@ -184,10 +127,10 @@ export const signTx = async (privateKeyBuffer: Buffer, rawTx: RawTx, chainInform
         },
       ],
       rawTx.fee.amount,
-      rawTx.fee.gas,
+      rawTx.fee.gas
     ),
     rawTx.signerData.chainId,
-    rawTx.signerData.accountNumber,
+    rawTx.signerData.accountNumber
   );
 
   const { signature } = await wallet.signDirect(accounts[0].address, signDoc);

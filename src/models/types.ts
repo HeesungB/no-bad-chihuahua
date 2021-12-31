@@ -19,30 +19,15 @@ export interface SignedTx {
   signedTx?: any;
 }
 
-export interface HuauaRewardResponse {
-  height: string;
-  result: {
-    rewards: [
-      {
-        validator_address: string;
-        reward: [
-          {
-            denom: string;
-            amount: string;
-          },
-        ];
-      },
-    ];
-  };
-}
-
 export interface ChainInformation {
   name: string;
   ticker: ChainType;
+  apiUrl: string;
   rpcUrl: string;
   prefix: string;
   demon: string;
-  feeAmount: string;
+  feeAmount: number;
+  gasPrice: number;
 }
 
 export type ChainType = 'HUAHUA' | 'OSMOSIS';
@@ -54,4 +39,21 @@ export interface PromptAnswers {
   authType: AuthType;
   authString: string;
   continueFlag: boolean;
+}
+
+export interface Reward {
+  validator_address: string;
+  reward: RewardAmount[];
+}
+
+export interface RewardAmount {
+  denom: string;
+  amount: string;
+}
+
+export interface RewardResponse {
+  height: string;
+  result: {
+    rewards: Reward[];
+  };
 }
