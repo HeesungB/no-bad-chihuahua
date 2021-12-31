@@ -1,7 +1,7 @@
 import axios from 'axios';
-import { HuauaRewardResponse } from '../models/types';
+import { RewardResponse } from '../models/types';
 
-export const getReward = async (address: string): Promise<HuauaRewardResponse> => {
-  const response = await axios.get(`https://api.chihuahua.wtf/distribution/delegators/${address}/rewards`);
-  return response.data as HuauaRewardResponse;
+export const getReward = async (apiUrl: string, address: string): Promise<RewardResponse> => {
+  const response = await axios.get(`${apiUrl}/distribution/delegators/${address}/rewards`);
+  return response.data as RewardResponse;
 };

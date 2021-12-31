@@ -3,28 +3,29 @@ import { fromSeed } from 'bip32';
 import { BN } from 'bn.js';
 import schedule from 'node-schedule';
 
-import { convertHexStringToBuffer, createClaimAndDelegateRawTx, getAccount, getClient, sendTx, signTx } from './services/cosmos';
-import { COIN_TYPE, GAS_PRICE, SUPPORT_CHAIN_LIST } from './config';
+import {
+  convertHexStringToBuffer,
+  createTx,
+  createTxMessage,
+  getAccount,
+  getClient,
+  getTopValidatorAddress,
+  sendTx,
+  signTx,
+} from './services/cosmos';
+import { COIN_TYPE, SUPPORT_CHAIN_LIST } from './config';
 import { getReward } from './services/api';
-import { ChainInformation } from './models/types';
+import { Account, ChainInformation, Reward, RewardResponse } from './models/types';
 import prompt from './cli/prompt';
 
 const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformation) => {
   const client = await getClient(chainInformation.rpcUrl);
-  const account = await getAccount(privateKey, chainInformation);
-  const rewardResponse = await getReward(account.address);
+  const account: Account = await getAccount(privateKey, chainInformation);
+  const rewardResponse: RewardResponse = await getReward(chainInformation.apiUrl, account.address);
 
-  const validatorAddress = rewardResponse.result.rewards[0].validator_address;
-  const amount = new BN(rewardResponse.result.rewards[0].reward[0].amount.split('.')[0], 10);
-  const gasPrice = new BN(GAS_PRICE, 10);
-
-  const rawTx = await createClaimAndDelegateRawTx(
-    client,
-    account.address,
-    validatorAddress,
-    amount.sub(gasPrice).toString(),
-    chainInformation,
-  );
+  const validatorAddress = getTopValidatorAddress(rewardResponse.result.rewards);
+  const txMessages = createTxMessage(chainInformation, rewardResponse.result.rewards, account.address, validatorAddress);
+  const rawTx = await createTx(client, chainInformation, account.address, txMessages);
   const signedTx = await signTx(privateKey, rawTx, chainInformation);
   const result = await sendTx(client, signedTx);
 };
@@ -52,7 +53,6 @@ const run = async () => {
     } else {
       privateKey = convertHexStringToBuffer(authString.startsWith('0x') ? authString.slice(2) : authString);
     }
-
     schedule.scheduleJob('*/1 * * * *', async () => {
       await autoStaking(privateKey, selectedChainInformation);
     });
