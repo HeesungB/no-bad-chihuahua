@@ -2,6 +2,8 @@
 
 ## About The Project
 
+TBD
+
 ### Built With
 
 - [React.js](https://reactjs.org/)
@@ -9,6 +11,8 @@
 <!-- GETTING STARTED -->
 
 ## Getting Started
+
+TBD
 
 ### Prerequisites
 
