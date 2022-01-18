@@ -1,5 +1,8 @@
 import { ChainInformation } from './models/types';
 
+export const MNEMONIC = '';
+export const PRIVATE_KEY = '';
+
 export const COIN_TYPE = 118; // https://github.com/satoshilabs/slips/blob/master/slip-0044.md
 
 export const SUPPORT_CHAIN_LIST: ChainInformation[] = [
@@ -10,7 +13,7 @@ export const SUPPORT_CHAIN_LIST: ChainInformation[] = [
     apiUrl: 'https://api.chihuahua.wtf',
     prefix: 'chihuahua',
     demon: 'uhuahua',
-    feeAmount: 7000,
+    feeAmount: 10000,
     gasPrice: 200000,
   },
   {
