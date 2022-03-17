@@ -33,4 +33,14 @@ export const SUPPORT_CHAIN_LIST: ChainInformation[] = [
     feeAmount: 6000,
     gasPrice: 200000,
   },
+  {
+    name: 'ceberus',
+    ticker: 'CRBRUS',
+    rpcUrl: 'https://rpc.cerberus.zone:26657',
+    apiUrl: 'https://api.cerberus.zone:1317',
+    prefix: 'cerberus',
+    demon: 'ucrbrus',
+    feeAmount: 6000,
+    gasPrice: 200000,
+  },
 ];

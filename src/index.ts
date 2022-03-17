@@ -28,6 +28,7 @@ const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformatio
   const rawTx = await createTx(client, chainInformation, account.address, txMessages);
   const signedTx = await signTx(privateKey, rawTx, chainInformation);
   const result = await sendTx(client, signedTx);
+  console.log('result', result);
 };
 
 const run = async () => {

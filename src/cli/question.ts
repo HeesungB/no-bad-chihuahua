@@ -2,7 +2,7 @@ import { ConfirmQuestion, ListQuestion, PasswordQuestion } from 'inquirer';
 import { AuthType, ChainType } from '../models/types';
 import { mnemonicValidation, privateKeyValidation } from './validation';
 
-const chainTypeList: ChainType[] = ['HUAHUA'];
+const chainTypeList: ChainType[] = ['HUAHUA', 'CRBRUS'];
 
 const authTypeList: AuthType[] = ['mnemonic', 'privateKey'];
 
