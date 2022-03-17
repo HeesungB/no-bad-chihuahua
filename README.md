@@ -77,3 +77,7 @@ or
 ```sh
 ? It will start from next schedule. Would you like to go on? (Y/n)
 ```
+
+## Thanks to
+
+Thanks to [meetrick](https://github.com/meetrick) providing tokens for testing.
