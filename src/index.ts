@@ -13,7 +13,7 @@ import {
   sendTx,
   signTx,
 } from './services/cosmos';
-import { COIN_TYPE, SUPPORT_CHAIN_LIST } from './config';
+import { COIN_TYPE, cycleTime, SUPPORT_CHAIN_LIST } from './config';
 import { getReward } from './services/api';
 import { Account, ChainInformation, Reward, RewardResponse } from './models/types';
 import prompt from './cli/prompt';
@@ -54,7 +54,7 @@ const run = async () => {
     } else {
       privateKey = convertHexStringToBuffer(authString.startsWith('0x') ? authString.slice(2) : authString);
     }
-    schedule.scheduleJob('*/1 * * * *', async () => {
+    schedule.scheduleJob(cycleTime, async () => {
       await autoStaking(privateKey, selectedChainInformation);
     });
   }
