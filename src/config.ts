@@ -1,6 +1,6 @@
 import { ChainInformation, ChainType } from './models/types';
 
-export const chainType: ChainType = 'HUAHUA';
+export const chainType: ChainType = 'HUAHUA'; // 'HUAHUA' | 'OSMOSIS' | 'CRBRUS'
 export const MNEMONIC = '';
 export const PRIVATE_KEY = '';
 
