@@ -30,7 +30,7 @@ export interface ChainInformation {
   gasPrice: number;
 }
 
-export type ChainType = 'HUAHUA' | 'OSMOSIS';
+export type ChainType = 'HUAHUA' | 'OSMOSIS' | 'CRBRUS';
 
 export type AuthType = 'mnemonic' | 'privateKey';
 

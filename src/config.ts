@@ -1,5 +1,6 @@
-import { ChainInformation } from './models/types';
+import { ChainInformation, ChainType } from './models/types';
 
+export const chainType: ChainType = 'HUAHUA';
 export const MNEMONIC = '';
 export const PRIVATE_KEY = '';
 
@@ -33,6 +34,16 @@ export const SUPPORT_CHAIN_LIST: ChainInformation[] = [
     apiUrl: 'https://rest.comdex.one',
     prefix: 'comdex',
     demon: 'ucmdx',
+    feeAmount: 6000,
+    gasPrice: 200000,
+  },
+  {
+    name: 'ceberus',
+    ticker: 'CRBRUS',
+    rpcUrl: 'https://rpc.cerberus.zone:26657',
+    apiUrl: 'https://api.cerberus.zone:1317',
+    prefix: 'cerberus',
+    demon: 'ucrbrus',
     feeAmount: 6000,
     gasPrice: 200000,
   },

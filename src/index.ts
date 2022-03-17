@@ -1,22 +1,11 @@
 import { mnemonicToSeedSync } from 'bip39';
 import { fromSeed } from 'bip32';
-import { BN } from 'bn.js';
 import schedule from 'node-schedule';
 
-import {
-  convertHexStringToBuffer,
-  createTx,
-  createTxMessage,
-  getAccount,
-  getClient,
-  getTopValidatorAddress,
-  sendTx,
-  signTx,
-} from './services/cosmos';
-import { COIN_TYPE, MNEMONIC, PRIVATE_KEY, SUPPORT_CHAIN_LIST } from './config';
+import { createTx, createTxMessage, getAccount, getClient, getTopValidatorAddress, sendTx, signTx } from './services/cosmos';
+import { chainType, COIN_TYPE, MNEMONIC, PRIVATE_KEY, SUPPORT_CHAIN_LIST } from './config';
 import { getReward } from './services/api';
-import { Account, ChainInformation, Reward, RewardResponse } from './models/types';
-import prompt from './cli/prompt';
+import { Account, ChainInformation, RewardResponse } from './models/types';
 
 const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformation) => {
   const client = await getClient(chainInformation.rpcUrl);
@@ -33,8 +22,6 @@ const autoStaking = async (privateKey: Buffer, chainInformation: ChainInformatio
 };
 
 const run = async () => {
-  const chainType = 'HUAHUA';
-
   const selectedChainInformation: ChainInformation | undefined = SUPPORT_CHAIN_LIST.find((chain) => chain.ticker === chainType);
 
   if (selectedChainInformation === undefined) {
